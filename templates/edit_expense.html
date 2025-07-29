@@ -16,7 +16,7 @@
             <div class="card-body">
                 <form method="POST">
                     <div class="mb-3">
-                        <label for="amount" class="form-label">Amount ($)</label>
+                        <label for="amount" class="form-label">Amount (<strong>৳</strong>)</label>
                         <input type="number" class="form-control" id="amount" name="amount" 
                                step="0.01" min="0.01" required value="{{ expense.amount }}">
                     </div>
@@ -65,7 +65,7 @@
                 <table class="table table-sm">
                     <tr>
                         <td><strong>Amount:</strong></td>
-                        <td>${{ "%.2f"|format(expense.amount) }}</td>
+                        <td><strong>৳</strong>{{ "%.2f"|format(expense.amount) }}</td>
                     </tr>
                     <tr>
                         <td><strong>Category:</strong></td>

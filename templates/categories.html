@@ -88,9 +88,9 @@ Tracker{% endblock %} {% block content %}
                 </td>
                 <td>{{ stats.count }}</td>
                 <td>
-                  {% if stats.total > 0 %} ${{ "%.2f"|format(stats.total) }} {%
-                  else %}
-                  <span class="text-muted">$0.00</span>
+                  {% if stats.total > 0 %} <strong>৳</strong>{{
+                  "%.2f"|format(stats.total) }} {% else %}
+                  <span class="text-muted"><strong>৳</strong>0.00</span>
                   {% endif %}
                 </td>
                 <td>
@@ -151,8 +151,8 @@ Tracker{% endblock %} {% block content %}
           <div class="d-flex justify-content-between align-items-center mb-1">
             <span class="fw-medium">{{ category }}</span>
             <span class="text-muted"
-              >${{ "%.2f"|format(stats.total) }} ({{ "%.1f"|format(percentage)
-              }}%)</span
+              ><strong>৳</strong>{{ "%.2f"|format(stats.total) }} ({{
+              "%.1f"|format(percentage) }}%)</span
             >
           </div>
           <div class="progress" style="height: 8px">

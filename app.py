@@ -205,34 +205,49 @@ def summary():
 
 @app.route('/export_csv')
 def export_csv():
-    """Export expenses to CSV file"""
+    """Export expenses to aligned text table with total and proper separators"""
     try:
         user_data = get_user_data()
-        
-        # Create CSV data
-        output = StringIO()
-        writer = csv.writer(output)
-        writer.writerow(["Date", "Amount", "Category"])
-        
-        # Write expenses
+
+        # Prepare rows
+        rows = [("Date", "Amount", "Category")]
+        total = 0.0
         for date, expenses in sorted(user_data.items()):
             for expense in expenses:
-                writer.writerow([date, expense['amount'], expense['category']])
-        
-        # Create response
-        output.seek(0)
-        csv_content = output.getvalue()
-        
-        response = make_response(csv_content)
-        response.headers['Content-Type'] = 'text/csv'
-        response.headers['Content-Disposition'] = f'attachment; filename=expenses_{datetime.datetime.now().strftime("%Y%m%d")}.csv'
-        
+                amount = float(expense['amount'])
+                rows.append((date, f"{amount:.2f}", expense['category']))
+                total += amount
+
+        # Append total row
+        rows.append(("Total", f"{total:.2f}", ""))  # Total row
+
+        # Calculate column widths
+        col_widths = [max(len(str(row[i])) for row in rows) for i in range(3)]
+
+        # Build aligned output
+        output = StringIO()
+        for i, row in enumerate(rows):
+            # Add separator line after header and before total row
+            if i == 1 or i == len(rows) - 1:
+                sep = "|" + "|".join("-" * (w + 2) for w in col_widths) + "|"
+                output.write(sep + "\n")
+
+            line = f"| {row[0]:<{col_widths[0]}} | {row[1]:>{col_widths[1]}} | {row[2]:<{col_widths[2]}} |"
+            output.write(line + "\n")
+
+        # Return response
+        response = make_response(output.getvalue())
+        response.headers['Content-Type'] = 'text/plain'
+        response.headers['Content-Disposition'] = f'attachment; filename=expenses_{datetime.datetime.now().strftime("%Y%m%d")}.txt'
+
         return response
-        
+
     except Exception as e:
         app.logger.error(f"Error exporting CSV: {e}")
         flash('❌ Error exporting data. Please try again.', 'error')
         return redirect(url_for('index'))
+
+
 
 @app.route('/delete_expense', methods=['POST'])
 def delete_expense():

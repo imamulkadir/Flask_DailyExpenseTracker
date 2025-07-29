@@ -53,7 +53,9 @@ endblock %} {% block content %}
     <div class="card mb-4">
       <div class="card-body text-center">
         <h2 class="card-title">{{ title }}</h2>
-        <h1 class="text-primary">${{ "%.2f"|format(total) }}</h1>
+        <h1 class="text-primary">
+          <strong>৳</strong>{{ "%.2f"|format(total) }}
+        </h1>
         <p class="card-text">{{ expenses|length }} expense(s) found</p>
 
         {% if expenses %}
@@ -95,7 +97,9 @@ endblock %} {% block content %}
               <div class="card bg-body-secondary">
                 <div class="card-body py-2">
                   <strong>{{ category }}</strong><br />
-                  <span class="text-primary">${{ "%.2f"|format(amount) }}</span>
+                  <span class="text-primary"
+                    ><strong>৳</strong>{{ "%.2f"|format(amount) }}</span
+                  >
                   <small class="text-muted">
                     ({{ "%.1f"|format((amount/total)*100) }}%)
                   </small>
@@ -123,7 +127,7 @@ endblock %} {% block content %}
               <tr>
                 <td>{{ expense.date }}</td>
                 <td>{{ expense.category }}</td>
-                <td>${{ "%.2f"|format(expense.amount) }}</td>
+                <td><strong>৳</strong>{{ "%.2f"|format(expense.amount) }}</td>
                 <td>
                   <div class="btn-group" role="group">
                     <a

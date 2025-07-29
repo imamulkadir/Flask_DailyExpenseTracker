@@ -8,7 +8,7 @@ Tracker{% endblock %} {% block content %}
         <div class="card text-center">
           <div class="card-body">
             <h5 class="card-title">Total Expenses</h5>
-            <h2 class="text-primary">${{ "%.2f"|format(total_expenses) }}</h2>
+            <h2 class="text-primary">৳{{ "%.2f"|format(total_expenses) }}</h2>
             <p class="card-text">All time spending</p>
           </div>
         </div>
@@ -145,7 +145,7 @@ Tracker{% endblock %} {% block content %}
               * 100) if total_expenses > 0 else 0 %}
               <tr>
                 <td><strong>{{ category }}</strong></td>
-                <td>${{ "%.2f"|format(amount) }}</td>
+                <td>৳{{ "%.2f"|format(amount) }}</td>
                 <td>{{ "%.1f"|format(percentage) }}%</td>
                 <td>
                   <div class="progress" style="height: 20px; min-width: 100px">
@@ -219,7 +219,7 @@ Tracker{% endblock %} {% block content %}
                       label: function(context) {
                           const total = context.dataset.data.reduce((a, b) => a + b, 0);
                           const percentage = ((context.parsed * 100) / total).toFixed(1);
-                          return context.label + ': $' + context.parsed.toFixed(2) + ' (' + percentage + '%)';
+                          return context.label + ': ৳' + context.parsed.toFixed(2) + ' (' + percentage + '%)';
                       }
                   }
               }
@@ -273,7 +273,7 @@ Tracker{% endblock %} {% block content %}
                   ticks: {
                       color: '#adb5bd',
                       callback: function(value) {
-                          return '$' + value.toFixed(2);
+                          return '৳' + value.toFixed(2);
                       }
                   },
                   grid: {
@@ -332,7 +332,7 @@ Tracker{% endblock %} {% block content %}
                   ticks: {
                       color: '#adb5bd',
                       callback: function(value) {
-                          return '$' + value.toFixed(2);
+                          return '৳' + value.toFixed(2);
                       }
                   },
                   grid: {

@@ -13,7 +13,7 @@ Tracker{% endblock %} {% block content %}
       <div class="card-body">
         <form method="POST" action="{{ url_for('add_expense') }}">
           <div class="mb-3">
-            <label for="amount" class="form-label">Amount ($)</label>
+            <label for="amount" class="form-label">Amount (৳)</label>
             <input
               type="number"
               class="form-control"
@@ -76,7 +76,9 @@ Tracker{% endblock %} {% block content %}
         <div class="card text-center">
           <div class="card-body">
             <h5 class="card-title">Today's Total</h5>
-            <h2 class="text-primary">${{ "%.2f"|format(today_total) }}</h2>
+            <h2 class="text-primary">
+              <strong>৳</strong>{{ "%.2f"|format(today_total) }}
+            </h2>
             <p class="card-text">{{ today_expenses|length }} expense(s)</p>
           </div>
         </div>
@@ -130,7 +132,7 @@ Tracker{% endblock %} {% block content %}
               {% for expense in today_expenses %}
               <tr>
                 <td>{{ expense.category }}</td>
-                <td>${{ "%.2f"|format(expense.amount) }}</td>
+                <td><strong>৳</strong>{{ "%.2f"|format(expense.amount) }}</td>
                 <td>
                   <div class="btn-group" role="group">
                     <a
@@ -208,7 +210,7 @@ Tracker{% endblock %} {% block content %}
               <tr>
                 <td>{{ expense.date }}</td>
                 <td>{{ expense.category }}</td>
-                <td>${{ "%.2f"|format(expense.amount) }}</td>
+                <td><b>৳</b>{{ "%.2f"|format(expense.amount) }}</td>
                 <td>
                   <div class="btn-group" role="group">
                     <a
