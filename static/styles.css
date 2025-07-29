@@ -1,0 +1,121 @@
+/* Custom styles for the expense tracker */
+
+/* Improve icon alignment */
+.feather {
+  width: 16px;
+  height: 16px;
+  vertical-align: text-bottom;
+}
+
+/* Card hover effects */
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* Form focus styles */
+.form-control:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Table row hover */
+.table-hover tbody tr:hover {
+  background-color: var(--bs-gray-800);
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .card {
+    margin-bottom: 1rem;
+  }
+
+  .btn-sm {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+/* Alert animations */
+.alert {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading states */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Category breakdown cards */
+.bg-body-secondary .card-body {
+  background-color: var(--bs-gray-800);
+}
+
+/* Empty state styling */
+.text-center .feather {
+  width: 48px;
+  height: 48px;
+}
+
+/* Navigation improvements */
+.navbar-brand .feather {
+  width: 20px;
+  height: 20px;
+}
+
+.nav-link .feather {
+  width: 14px;
+  height: 14px;
+}
+
+/* Form validation styles */
+.was-validated .form-control:valid {
+  border-color: var(--bs-success);
+}
+
+.was-validated .form-control:invalid {
+  border-color: var(--bs-danger);
+}
+
+/* Print styles */
+@media print {
+  .navbar,
+  .btn,
+  .alert {
+    display: none !important;
+  }
+
+  .card {
+    border: 1px solid #000 !important;
+    box-shadow: none !important;
+  }
+
+  .table {
+    border-collapse: collapse !important;
+  }
+
+  .table th,
+  .table td {
+    border: 1px solid #000 !important;
+  }
+}

@@ -1,0 +1,356 @@
+{% extends "base.html" %} {% block title %}Analytics - Personal Expense
+Tracker{% endblock %} {% block content %}
+<div class="row">
+  <!-- Summary Cards -->
+  <div class="col-12 mb-4">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title">Total Expenses</h5>
+            <h2 class="text-primary">${{ "%.2f"|format(total_expenses) }}</h2>
+            <p class="card-text">All time spending</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title">Total Transactions</h5>
+            <h2 class="text-success">{{ total_transactions }}</h2>
+            <p class="card-text">Number of expenses</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card text-center">
+          <div class="card-body">
+            <h5 class="card-title">Categories Used</h5>
+            <h2 class="text-info">{{ category_totals|length }}</h2>
+            <p class="card-text">Different categories</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Breakdown Chart -->
+  <div class="col-lg-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i data-feather="pie-chart" class="me-2"></i>
+          Spending by Category
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if category_totals %}
+        <canvas id="categoryChart" width="400" height="300"></canvas>
+        {% else %}
+        <div class="text-center py-5">
+          <i
+            data-feather="pie-chart"
+            style="width: 48px; height: 48px"
+            class="text-muted mb-3"
+          ></i>
+          <h5 class="text-muted">No data available</h5>
+          <p class="text-muted">Add some expenses to see the breakdown.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly Trends Chart -->
+  <div class="col-lg-6 mb-4">
+    <div class="card h-100">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i data-feather="trending-up" class="me-2"></i>
+          Monthly Spending Trends
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if monthly_totals %}
+        <canvas id="monthlyChart" width="400" height="300"></canvas>
+        {% else %}
+        <div class="text-center py-5">
+          <i
+            data-feather="trending-up"
+            style="width: 48px; height: 48px"
+            class="text-muted mb-3"
+          ></i>
+          <h5 class="text-muted">No monthly data</h5>
+          <p class="text-muted">Track expenses over time to see trends.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Daily Spending Chart -->
+  <div class="col-12 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i data-feather="activity" class="me-2"></i>
+          Daily Spending (Last 30 Days)
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if daily_totals %}
+        <canvas id="dailyChart" width="800" height="400"></canvas>
+        {% else %}
+        <div class="text-center py-5">
+          <i
+            data-feather="activity"
+            style="width: 48px; height: 48px"
+            class="text-muted mb-3"
+          ></i>
+          <h5 class="text-muted">No daily data</h5>
+          <p class="text-muted">
+            Start tracking daily expenses to see patterns.
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Details Table -->
+  {% if category_totals %}
+  <div class="col-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i data-feather="list" class="me-2"></i>
+          Category Breakdown Details
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Total Amount</th>
+                <th>Percentage</th>
+                <th>Visual</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% set sorted_categories = category_totals.items() |
+              sort(attribute=1, reverse=True) %} {% for category, amount in
+              sorted_categories %} {% set percentage = (amount / total_expenses
+              * 100) if total_expenses > 0 else 0 %}
+              <tr>
+                <td><strong>{{ category }}</strong></td>
+                <td>${{ "%.2f"|format(amount) }}</td>
+                <td>{{ "%.1f"|format(percentage) }}%</td>
+                <td>
+                  <div class="progress" style="height: 20px; min-width: 100px">
+                    <div
+                      class="progress-bar"
+                      role="progressbar"
+                      style="width: {{ percentage }}%"
+                      aria-valuenow="{{ percentage }}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    ></div>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %} {% block scripts %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  // Color palette for charts
+  const colors = [
+      '#0d6efd', '#6610f2', '#6f42c1', '#d63384', '#dc3545',
+      '#fd7e14', '#ffc107', '#198754', '#20c997', '#0dcaf0'
+  ];
+
+  {% if category_totals %}
+  // Category Pie Chart
+  const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+  const categoryChart = new Chart(categoryCtx, {
+      type: 'doughnut',
+      data: {
+          labels: [
+              {% for category, amount in category_totals.items() %}
+              "{{ category }}",
+              {% endfor %}
+          ],
+          datasets: [{
+              data: [
+                  {% for category, amount in category_totals.items() %}
+                  {{ amount }},
+                  {% endfor %}
+              ],
+              backgroundColor: colors.slice(0, {{ category_totals|length }}),
+              borderWidth: 2,
+              borderColor: '#212529'
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+              legend: {
+                  position: 'bottom',
+                  labels: {
+                      color: '#fff',
+                      usePointStyle: true,
+                      padding: 15
+                  }
+              },
+              tooltip: {
+                  callbacks: {
+                      label: function(context) {
+                          const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                          const percentage = ((context.parsed * 100) / total).toFixed(1);
+                          return context.label + ': $' + context.parsed.toFixed(2) + ' (' + percentage + '%)';
+                      }
+                  }
+              }
+          }
+      }
+  });
+  {% endif %}
+
+  {% if monthly_totals %}
+  // Monthly Trends Chart
+  const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+  const monthlyChart = new Chart(monthlyCtx, {
+      type: 'line',
+      data: {
+          labels: [
+              {% for month in monthly_totals %}
+              "{{ month.month }}",
+              {% endfor %}
+          ],
+          datasets: [{
+              label: 'Monthly Spending',
+              data: [
+                  {% for month in monthly_totals %}
+                  {{ month.total }},
+                  {% endfor %}
+              ],
+              borderColor: '#0d6efd',
+              backgroundColor: 'rgba(13, 110, 253, 0.1)',
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: '#0d6efd',
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 6
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+              legend: {
+                  labels: {
+                      color: '#fff'
+                  }
+              }
+          },
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  ticks: {
+                      color: '#adb5bd',
+                      callback: function(value) {
+                          return '$' + value.toFixed(2);
+                      }
+                  },
+                  grid: {
+                      color: 'rgba(255, 255, 255, 0.1)'
+                  }
+              },
+              x: {
+                  ticks: {
+                      color: '#adb5bd'
+                  },
+                  grid: {
+                      color: 'rgba(255, 255, 255, 0.1)'
+                  }
+              }
+          }
+      }
+  });
+  {% endif %}
+
+  {% if daily_totals %}
+  // Daily Spending Chart
+  const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+  const dailyChart = new Chart(dailyCtx, {
+      type: 'bar',
+      data: {
+          labels: [
+              {% for day in daily_totals %}
+              "{{ day.date }}",
+              {% endfor %}
+          ],
+          datasets: [{
+              label: 'Daily Spending',
+              data: [
+                  {% for day in daily_totals %}
+                  {{ day.total }},
+                  {% endfor %}
+              ],
+              backgroundColor: 'rgba(32, 201, 151, 0.8)',
+              borderColor: '#20c997',
+              borderWidth: 1
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+              legend: {
+                  labels: {
+                      color: '#fff'
+                  }
+              }
+          },
+          scales: {
+              y: {
+                  beginAtZero: true,
+                  ticks: {
+                      color: '#adb5bd',
+                      callback: function(value) {
+                          return '$' + value.toFixed(2);
+                      }
+                  },
+                  grid: {
+                      color: 'rgba(255, 255, 255, 0.1)'
+                  }
+              },
+              x: {
+                  ticks: {
+                      color: '#adb5bd',
+                      maxTicksLimit: 15
+                  },
+                  grid: {
+                      color: 'rgba(255, 255, 255, 0.1)'
+                  }
+              }
+          }
+      }
+  });
+  {% endif %}
+</script>
+{% endblock %}

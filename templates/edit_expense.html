@@ -1,0 +1,108 @@
+
+{% extends "base.html" %}
+
+{% block title %}Edit Expense - Personal Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="edit-2" class="me-2"></i>
+                    Edit Expense
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount ($)</label>
+                        <input type="number" class="form-control" id="amount" name="amount" 
+                               step="0.01" min="0.01" required value="{{ expense.amount }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category</label>
+                        <select class="form-select" id="category" name="category" required>
+                            <option value="">Select a category...</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat }}" {{ 'selected' if cat == expense.category else '' }}>
+                                {{ cat }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" 
+                               value="{{ expense_date }}" required>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary me-md-2">
+                            <i data-feather="x" class="me-2"></i>
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i data-feather="save" class="me-2"></i>
+                            Update Expense
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Expense History -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i data-feather="info" class="me-2"></i>
+                    Original Details
+                </h6>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <tr>
+                        <td><strong>Amount:</strong></td>
+                        <td>${{ "%.2f"|format(expense.amount) }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Category:</strong></td>
+                        <td>{{ expense.category }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Date:</strong></td>
+                        <td>{{ expense_date }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-focus on amount input
+    document.getElementById('amount').focus();
+    
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const amount = document.getElementById('amount').value;
+        const category = document.getElementById('category').value;
+        
+        if (!amount || parseFloat(amount) <= 0) {
+            e.preventDefault();
+            alert('Please enter a valid amount greater than 0.');
+            return;
+        }
+        
+        if (!category) {
+            e.preventDefault();
+            alert('Please select a category.');
+            return;
+        }
+    });
+</script>
+{% endblock %}

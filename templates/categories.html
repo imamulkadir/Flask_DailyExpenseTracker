@@ -1,0 +1,205 @@
+{% extends "base.html" %} {% block title %}Manage Categories - Personal Expense
+Tracker{% endblock %} {% block content %}
+<div class="row">
+  <!-- Add New Category -->
+  <div class="col-lg-4 mb-4">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i data-feather="plus-circle" class="me-2"></i>
+          Add New Category
+        </h5>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="{{ url_for('add_category') }}">
+          <div class="mb-3">
+            <label for="category" class="form-label">Category Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="category"
+              name="category"
+              required
+              placeholder="e.g., Entertainment, Utilities"
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">
+            <i data-feather="plus" class="me-2"></i>
+            Add Category
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Category Stats Summary -->
+    <div class="card mt-4">
+      <div class="card-header">
+        <h6 class="card-title mb-0">
+          <i data-feather="info" class="me-2"></i>
+          Quick Stats
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="row text-center">
+          <div class="col-6">
+            <h4 class="text-primary">{{ categories|length }}</h4>
+            <small class="text-muted">Total Categories</small>
+          </div>
+          <div class="col-6">
+            <h4 class="text-success">{{ category_stats|length }}</h4>
+            <small class="text-muted">Categories Used</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Categories List -->
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">
+          <i data-feather="tag" class="me-2"></i>
+          Your Categories
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if categories %}
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Category Name</th>
+                <th>Times Used</th>
+                <th>Total Spent</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for category in categories %} {% set stats =
+              category_stats.get(category, {'count': 0, 'total': 0}) %}
+              <tr>
+                <td>
+                  <strong>{{ category }}</strong>
+                  {% if stats.count == 0 %}
+                  <span class="badge bg-secondary ms-2">Unused</span>
+                  {% endif %}
+                </td>
+                <td>{{ stats.count }}</td>
+                <td>
+                  {% if stats.total > 0 %} ${{ "%.2f"|format(stats.total) }} {%
+                  else %}
+                  <span class="text-muted">$0.00</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if stats.count == 0 %}
+                  <form
+                    method="POST"
+                    action="{{ url_for('delete_category') }}"
+                    style="display: inline"
+                    onsubmit="return confirm('Are you sure you want to delete this category?')"
+                  >
+                    <input
+                      type="hidden"
+                      name="category"
+                      value="{{ category }}"
+                    />
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      <i data-feather="trash-2"></i>
+                      Delete
+                    </button>
+                  </form>
+                  {% else %}
+                  <span class="text-muted small">In use</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+          <i
+            data-feather="tag"
+            style="width: 48px; height: 48px"
+            class="text-muted mb-3"
+          ></i>
+          <h5 class="text-muted">No categories found</h5>
+          <p class="text-muted">Add your first category to get started.</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Category Usage Breakdown -->
+    {% if category_stats %}
+    <div class="card mt-4">
+      <div class="card-header">
+        <h6 class="card-title mb-0">
+          <i data-feather="pie-chart" class="me-2"></i>
+          Category Usage Breakdown
+        </h6>
+      </div>
+      <div class="card-body">
+        {% set total_spent = category_stats.values() | sum(attribute='total') %}
+        {% for category, stats in category_stats.items() %} {% set percentage =
+        (stats.total / total_spent * 100) if total_spent > 0 else 0 %}
+        <div class="mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="fw-medium">{{ category }}</span>
+            <span class="text-muted"
+              >${{ "%.2f"|format(stats.total) }} ({{ "%.1f"|format(percentage)
+              }}%)</span
+            >
+          </div>
+          <div class="progress" style="height: 8px">
+            <div
+              class="progress-bar"
+              role="progressbar"
+              style="width: {{ percentage }}%"
+              aria-valuenow="{{ percentage }}"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            ></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+    // Auto-focus on category input
+    document.getElementById('category').focus();
+
+    // Form validation
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const category = document.getElementById('category').value.trim();
+
+        if (!category) {
+            e.preventDefault();
+            alert('Please enter a category name.');
+            return;
+        }
+
+        // Check for existing category (case insensitive)
+       const existingCategories = [
+      {% for cat in categories %}
+      "{{ cat|lower }}"{% if not loop.last %},{% endif %}
+      {% endfor %}
+  ];
+
+
+        if (existingCategories.includes(category.toLowerCase())) {
+            e.preventDefault();
+            alert('This category already exists.');
+            return;
+        }
+    });
+</script>
+{% endblock %}

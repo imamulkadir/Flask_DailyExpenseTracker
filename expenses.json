@@ -1,0 +1,22 @@
+{
+  "default": {
+    "2025-07-29": [
+      {
+        "amount": 120.0,
+        "category": "Food & Dining"
+      }
+    ],
+    "2025-07-28": [
+      {
+        "amount": 43.0,
+        "category": "Entertainment"
+      }
+    ],
+    "2025-07-27": [
+      {
+        "amount": 145.0,
+        "category": "Bills & Utilities"
+      }
+    ]
+  }
+}
